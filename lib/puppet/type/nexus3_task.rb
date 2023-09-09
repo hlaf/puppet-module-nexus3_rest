@@ -66,7 +66,7 @@ Puppet::Type.newtype(:nexus3_task) do
       `manual` or `advanced`.'
     validate do |value|
       raise ArgumentError, 'Start date must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Start date must match YYYY-MM-DD, got '#{value}'" unless %r{^\d{4}-\d{2}-\d{2}$}.match?(value.to_s)
+      raise ArgumentError, "Start date must match YYYY-MM-DD, got '#{value}'" unless value.to_s =~ %r{^\d{4}-\d{2}-\d{2}$}
     end
   end
 
@@ -74,7 +74,7 @@ Puppet::Type.newtype(:nexus3_task) do
     desc 'The start time in `hh:mm` the task should run (according to the timezone of the service). Mandatory unless `frequency` is
       `manual` or `advanced`.'
     validate do |value|
-      raise ArgumentError, "Start time must match the following format: <hh::mm>, got '#{value}'" unless %r{^\d\d?:\d\d$}.match?(value.to_s)
+      raise ArgumentError, "Start time must match the following format: <hh::mm>, got '#{value}'" unless value.to_s =~ %r{^\d\d?:\d\d$}
     end
   end
 

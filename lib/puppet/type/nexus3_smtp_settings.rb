@@ -18,7 +18,7 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'The port number the SMTP server is listening on. Must be within 1 and 65535.'
     defaultto 25
     validate do |value|
-      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless %r{\d+}.match?(value.to_s)
+      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless value.to_s =~ %r{\d+}
       raise ArgumentError, "Port must within [1, 65535], got #{value}" unless (1..65_535).cover?(value.to_i)
     end
     munge { |value| Integer(value) }
@@ -43,7 +43,7 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'Email address used in the `From:` field.'
     validate do |value|
       raise ArgumentError, 'Sender email must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Invalid email address '#{value}'." unless %r{@}.match?(value.to_s)
+      raise ArgumentError, "Invalid email address '#{value}'." unless value.to_s =~ %r{@}
     end
   end
 

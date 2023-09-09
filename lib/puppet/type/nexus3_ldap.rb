@@ -35,7 +35,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
     desc 'The port number the LDAP server is listening on. Must be within 1 and 65535.'
     defaultto 389
     validate do |value|
-      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless %r{\d+}.match?(value.to_s)
+      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless value.to_s =~ %r{\d+}
       raise ArgumentError, "Port must within [1, 65535], got #{value}" unless (1..65_535).cover?(value.to_i)
     end
     munge { |value| Integer(value) }

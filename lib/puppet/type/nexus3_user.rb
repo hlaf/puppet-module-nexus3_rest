@@ -31,7 +31,7 @@ Puppet::Type.newtype(:nexus3_user) do
     desc 'The email of the user.'
     validate do |value|
       raise ArgumentError, 'Email must not be empty' if value.nil? || value.to_s.empty?
-      raise ArgumentError, "Invalid email address '#{value}'." unless %r{@}.match?(value.to_s)
+      raise ArgumentError, "Invalid email address '#{value}'." unless value.to_s =~ %r{@}
     end
   end
 
