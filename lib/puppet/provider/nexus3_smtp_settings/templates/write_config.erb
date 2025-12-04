@@ -4,7 +4,7 @@ config.enabled = <%= resource[:enabled] %>;
 config.host = '<%= resource[:hostname] %>';
 config.port = <%= resource[:port] %>;
 config.username = '<%= resource[:username] %>';
-config.password = '<%= resource[:password] %>';
+config.password = '<%= resource[:password].to_s.gsub("'", "\\'") %>';
 config.fromAddress = '<%= resource[:sender_email] %>';
 config.subjectPrefix = '<%= resource[:subject_prefix] %>';
 config.nexusTrustStoreEnabled = <%= resource[:nexus_trust_store_enabled] %>;
