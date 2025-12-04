@@ -51,6 +51,41 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'Email subject prefix.'
   end
 
+  newproperty(:nexus_trust_store_enabled, parent: Puppet::Property::Boolean) do
+    desc 'When Nexus Repository truststore should be used or not.'
+    newvalues(:true, :false)
+    defaultto :false
+    munge { |value| super(value).to_s.to_sym }
+  end
+
+  newproperty(:start_tls_enabled, parent: Puppet::Property::Boolean) do
+    desc 'When STARTTLS support is enabled or not.'
+    newvalues(:true, :false)
+    defaultto :false
+    munge { |value| super(value).to_s.to_sym }
+  end
+
+  newproperty(:start_tls_required, parent: Puppet::Property::Boolean) do
+    desc 'When STARTTLS support is required or not.'
+    newvalues(:true, :false)
+    defaultto :false
+    munge { |value| super(value).to_s.to_sym }
+  end
+
+  newproperty(:ssl_on_connect_enabled, parent: Puppet::Property::Boolean) do
+    desc 'When SSL/TLS encryption is enabled upon connection or not.'
+    newvalues(:true, :false)
+    defaultto :false
+    munge { |value| super(value).to_s.to_sym }
+  end
+
+  newproperty(:ssl_check_server_identity_enabled, parent: Puppet::Property::Boolean) do
+    desc 'When server identity check is enabled or not.'
+    newvalues(:true, :false)
+    defaultto :false
+    munge { |value| super(value).to_s.to_sym }
+  end
+
   autorequire(:file) do
     Nexus3::Config.file_path
   end

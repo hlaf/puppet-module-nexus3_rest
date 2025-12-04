@@ -8,4 +8,9 @@ return groovy.json.JsonOutput.toJson([
   password : config.password,
   sender_email : config.fromAddress,
   subject_prefix : config.subjectPrefix,
+  nexus_trust_store_enabled : config.nexusTrustStoreEnabled,
+  start_tls_enabled : config.startTlsEnabled,
+  start_tls_required : config.startTlsRequired,
+  ssl_on_connect_enabled : config.sslOnConnectEnabled,
+  ssl_check_server_identity_enabled : config.sslCheckServerIdentityEnabled,
 ]);
