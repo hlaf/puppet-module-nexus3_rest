@@ -1,4 +1,5 @@
 def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name)
-def config = realmManager.getConfiguration()
-config.setRealmNames(<%= resource[:names] %>)
-realmManager.setConfiguration(config);
+// Nexus >= 3.60: setConfiguredRealmIds() replaces the removed
+// getConfiguration()/setRealmNames()/setConfiguration() dance. It is a full-list
+// replacement, same semantics as the old setRealmNames.
+realmManager.setConfiguredRealmIds(<%= resource[:names] %>);

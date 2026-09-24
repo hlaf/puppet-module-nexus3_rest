@@ -1,5 +1,7 @@
 def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name);
-def config = realmManager.getConfiguration()
+// Nexus >= 3.60: RealmManager.getConfiguration() / RealmConfiguration.getRealmNames()
+// were removed; the configured realm list is read via getConfiguredRealmIds(). The
+// pre-3.60 getConfiguration() path fails on 3.6x with a MissingMethodException (400).
 return groovy.json.JsonOutput.toJson([
-  names : config.getRealmNames(),
+  names: realmManager.getConfiguredRealmIds()
 ]);
