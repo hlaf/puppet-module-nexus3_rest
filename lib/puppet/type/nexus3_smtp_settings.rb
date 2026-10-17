@@ -1,4 +1,5 @@
 require 'puppet/property/boolean'
+require 'digest'
 
 Puppet::Type.newtype(:nexus3_smtp_settings) do
   @doc = 'Manages Nexus 3 SMTP settings.'
@@ -37,6 +38,33 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
 
   newparam(:password) do
     desc 'The expected value of the password.'
+  end
+
+  # Change-detection digest for the password. The password stays a PARAMETER
+  # (never synchronised) on purpose: a property records its raw previous and
+  # desired values in the agent run report, and this Puppet version has no
+  # Sensitive redaction for those structured fields, so a password property
+  # would copy the secret into every report sink. Synchronising a one-way
+  # SHA-256 of the password instead makes a change detectable -- the provider
+  # then flushes and pushes the real (parameter) password -- while only the
+  # digest, never the secret, can reach a report. The *_to_s overrides keep
+  # even the digest out of the human-readable change message. Internal: it
+  # defaults from `password` and must not be set in a manifest.
+  newproperty(:password_hash) do
+    desc 'Internal change-detection digest of the password. Do not set manually.'
+    defaultto { Digest::SHA256.hexdigest(@resource[:password].to_s) }
+
+    def is_to_s(_currentvalue)
+      '[redacted]'
+    end
+
+    def should_to_s(_newvalue)
+      '[redacted]'
+    end
+
+    def change_to_s(_currentvalue, _newvalue)
+      'password change detected'
+    end
   end
 
   newproperty(:sender_email) do

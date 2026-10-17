@@ -98,7 +98,10 @@ describe type_class.provider(:ruby) do
       expect(instances[0].hostname).to eq('my.server.com')
       expect(instances[0].port).to eq(1234)
       expect(instances[0].username).to eq('user')
-      expect(instances[0].password).to eq('pass')
+      # The cleartext password is replaced by a one-way digest and blanked, so
+      # the secret never rides a synchronised property into a report.
+      expect(instances[0].password).to eq('')
+      expect(instances[0].password_hash).to eq(Digest::SHA256.hexdigest('pass'))
       expect(instances[0].sender_email).to eq('admin@my.server.com')
       expect(instances[0].subject_prefix).to eq('prefix of email subject')
     end
@@ -127,6 +130,30 @@ describe type_class.provider(:ruby) do
       before(:each) { instance.port = 4321 }
 
       specify { expect(instance.instance_variable_get(:@update_required)).to be_truthy }
+    end
+
+    describe 'when only the password changed' do
+      before(:each) { instance.password_hash = Digest::SHA256.hexdigest('a different password') }
+
+      specify { expect(instance.instance_variable_get(:@update_required)).to be_truthy }
+    end
+  end
+
+  describe 'password change detection and redaction' do
+    specify 'maps the service password to a SHA-256 and blanks the cleartext' do
+      allow(Nexus3::API).to receive(:execute_script).and_return(values.to_json)
+      inst = described_class.instances[0]
+      expect(inst.password_hash).to eq(Digest::SHA256.hexdigest('pass'))
+      expect(inst.password).to eq('')
+    end
+
+    specify 'redact_password strips the password from a script before it is logged' do
+      inst = described_class.new
+      raw = "config.username = 'user';\nconfig.password = 'sup3r secret';\nconfig.port = 25;"
+      red = inst.redact_password(raw)
+      expect(red).to include("config.password = '[redacted]';")
+      expect(red).not_to include('sup3r secret')
+      expect(red).to include("config.username = 'user';")
     end
   end
 end

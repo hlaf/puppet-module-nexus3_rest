@@ -133,6 +133,21 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
     end
   end
 
+  describe 'password_hash' do
+    specify 'defaults to the SHA-256 of the password' do
+      resource = described_class.new(required_values.merge(password: 'secret'))
+      expect(resource[:password_hash]).to eq(Digest::SHA256.hexdigest('secret'))
+    end
+
+    specify 'redacts its value in every change-message form' do
+      resource = described_class.new(required_values.merge(password: 'secret', password_hash: 'abc'))
+      prop = resource.property(:password_hash)
+      expect(prop.is_to_s('abc')).to eq('[redacted]')
+      expect(prop.should_to_s('def')).to eq('[redacted]')
+      expect(prop.change_to_s('abc', 'def')).to eq('password change detected')
+    end
+  end
+
   describe 'sender_email' do
     specify 'should accept valid email address' do
       expect { described_class.new(required_values.merge(sender_email: 'jdoe@example.com')) }.not_to raise_error
