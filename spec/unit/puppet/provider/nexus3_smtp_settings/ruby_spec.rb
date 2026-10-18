@@ -71,6 +71,11 @@ describe type_class.provider(:ruby) do
           password : config.password,
           sender_email : config.fromAddress,
           subject_prefix : config.subjectPrefix,
+          nexus_trust_store_enabled : config.nexusTrustStoreEnabled,
+          start_tls_enabled : config.startTlsEnabled,
+          start_tls_required : config.startTlsRequired,
+          ssl_on_connect_enabled : config.sslOnConnectEnabled,
+          ssl_check_server_identity_enabled : config.sslCheckServerIdentityEnabled,
         ]);
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return('{}')
@@ -119,6 +124,11 @@ describe type_class.provider(:ruby) do
         config.password = 'pass';
         config.fromAddress = 'admin@my.server.com';
         config.subjectPrefix = 'prefix of email subject';
+        config.nexusTrustStoreEnabled = false;
+        config.startTlsEnabled = false;
+        config.startTlsRequired = false;
+        config.sslOnConnectEnabled = false;
+        config.sslCheckServerIdentityEnabled = false;
         emailManager.setConfiguration(config);
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return(nil)

@@ -56,9 +56,11 @@ describe type_class.provider(:ruby) do
     specify 'should execute a script to get Realm settings' do
       script = <<~EOS
         def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name);
-        def config = realmManager.getConfiguration()
+        // Nexus >= 3.60: RealmManager.getConfiguration() / RealmConfiguration.getRealmNames()
+        // were removed; the configured realm list is read via getConfiguredRealmIds(). The
+        // pre-3.60 getConfiguration() path fails on 3.6x with a MissingMethodException (400).
         return groovy.json.JsonOutput.toJson([
-          names : config.getRealmNames(),
+          names: realmManager.getConfiguredRealmIds()
         ]);
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return('{}')
@@ -84,9 +86,10 @@ describe type_class.provider(:ruby) do
     it 'execute a script to update the changes' do
       script = <<~EOS
         def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name)
-        def config = realmManager.getConfiguration()
-        config.setRealmNames(["name1", "name2"])
-        realmManager.setConfiguration(config);
+        // Nexus >= 3.60: setConfiguredRealmIds() replaces the removed
+        // getConfiguration()/setRealmNames()/setConfiguration() dance. It is a full-list
+        // replacement, same semantics as the old setRealmNames.
+        realmManager.setConfiguredRealmIds(["name1", "name2"]);
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return(nil)
       instance.mark_config_dirty
